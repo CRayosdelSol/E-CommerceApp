@@ -62,10 +62,15 @@
                                                     </div>
                                                     <div class="col-md">
                                                         <div class="container">
-                                                            <div class="form-group">
-                                                                <asp:Label ID="Label5" runat="server" Text="Quantity (Max: 99)" CssClass="h6 text-muted"></asp:Label>
-                                                                <br />
-                                                                <asp:TextBox ID="tbx_qty" runat="server" CssClass="form-control" TextMode="Number" Text='<%# Eval("quantity") %>' min="1" max="99" step="1" OnTextChanged="tbx_qty_TextChanged" AutoPostBack="true"></asp:TextBox>
+                                                            <asp:Label ID="Label5" runat="server" Text="Quantity (Max: 99)" CssClass="h6 text-muted"></asp:Label>
+                                                            <div class="input-group my-3">
+                                                                <div class="input-group-append">
+                                                                    <asp:Button ID="Btn_add" runat="server" Text="+" CssClass="btn btn-outline-primary" OnClick="Btn_add_Click" />
+                                                                </div>
+                                                                <asp:TextBox ID="tbx_qty" runat="server" CssClass="form-control text-center" TextMode="Number" Text='<%# Eval("quantity") %>' min="1" max="99" step="1" OnTextChanged="tbx_qty_TextChanged" AutoPostBack="true" ></asp:TextBox>
+                                                                <div class="input-group-append">
+                                                                    <asp:Button ID="Btn_sub" runat="server" Text="-" CssClass="btn btn-outline-primary" OnClick="Btn_sub_Click" />
+                                                                </div>
                                                             </div>
                                                             <asp:Button ID="btn_remove" runat="server" CssClass="btn btn-outline-danger btn-block" Text="Remove from cart" CommandArgument='<%#Eval("sku")+","+ Eval("price")+","+ Eval("quantity")%>' OnClientClick="return confirm('Are you sure you want to delete this item?')" UseSubmitBehavior="true" />
                                                         </div>

@@ -134,6 +134,148 @@ namespace E_CommerceApp
             e.Command.Parameters["@totalPrice"].Value = _cart.totalCartPrice;
         }
 
+        protected void Btn_add_Click(object sender, EventArgs e)
+        {
+            Button Btn_add = (Button)sender;
+            ListViewDataItem item = (ListViewDataItem)Btn_add.NamingContainer;
+            Button a_Btn_add = (Button)item.FindControl("Btn_add");
+            TextBox tb = (TextBox)item.FindControl("tbx_qty"); //get the textbox in the proper listview item
+
+            int tb_content = Convert.ToInt32(tb.Text);
+            tb.Text = (tb_content + 1).ToString();
+
+            if (Convert.ToInt32(tb.Text) <= 0 || tb.Text == string.Empty || string.IsNullOrEmpty(tb.Text) || string.IsNullOrWhiteSpace(tb.Text) || (tb.Text == DBNull.Value.ToString(CultureInfo.InvariantCulture)))
+            {
+                tb.Text = "1";
+            }
+            else if (Convert.ToInt32(tb.Text) > 99)
+            {
+                tb.Text = "99";
+            }
+
+            Label lblSku = (Label)item.FindControl("lbl_sku");
+            Label lblPrice = (Label)item.FindControl("lbl_price");
+
+            //int t_itemStock = DBOps.GetProductQuantity(lblSku.Text);
+            int t_itemStock = Convert.ToInt32(Session[lblSku.Text]);
+            int t_cartQuantity = Convert.ToInt32(tb.Text);
+            int t_currCartQuantity = DBOps.GetItemQuantity(_userCartId, lblSku.Text);
+
+            try
+            {
+                _itemSKU = lblSku.Text;
+
+                /// user adds a specified amount of the item to the cart
+                if (t_currCartQuantity - t_cartQuantity < 0)
+                {
+                    if (t_itemStock >= t_cartQuantity /* || t_sessionQuant >= t_cartQuantity*/)
+                    {
+                        _cart.UpdateItem(lblSku.Text, Decimal.Parse(lblPrice.Text, NumberStyles.Currency), Convert.ToInt32(tb.Text));
+                        cartDatasource.Update();
+
+                        _itemQuant = DBOps.GetProductQuantity(_itemSKU) - Math.Abs(t_currCartQuantity - t_cartQuantity);
+                        ProductsDataSource.Update();
+                    }
+                    else
+                    {
+                        ScriptManager.RegisterStartupScript(this, GetType(), "notif",
+                            string.Format("alert('ITEM NOT ADDED. The specified quantity of {0} is more than the available stock of the item.')",
+                            t_cartQuantity), true);
+                    }
+                }
+                else
+                {
+                    _cart.UpdateItem(lblSku.Text, Decimal.Parse(lblPrice.Text, NumberStyles.Currency), Convert.ToInt32(tb.Text));
+                    cartDatasource.Update();
+                    _itemQuant = DBOps.GetProductQuantity(_itemSKU) + Math.Abs(t_currCartQuantity - t_cartQuantity);
+                    ProductsDataSource.Update();
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            lvw_items.DataSource = DBOps.BuildUserCart(_userCartId);
+            lvw_totals.DataSource = DBOps.BuildUserCartTotals(_userCartId);
+            lvw_items.DataBind();
+            lvw_totals.DataBind();
+
+            SiteMaster master = Page.Master as SiteMaster;
+            master.UpdateTotalCounters();
+
+        }
+
+        protected void Btn_sub_Click(object sender, EventArgs e)
+        {
+            Button Btn_sub = (Button)sender;
+            ListViewDataItem item = (ListViewDataItem)Btn_sub.NamingContainer;
+            Button a_Btn_sub = (Button)item.FindControl("Btn_sub");
+            TextBox tb = (TextBox)item.FindControl("tbx_qty"); //get the textbox in the proper listview item
+
+            int tb_content = Convert.ToInt32(tb.Text);
+            tb.Text = (tb_content - 1).ToString();
+
+            if (Convert.ToInt32(tb.Text) <= 0 || tb.Text == string.Empty || string.IsNullOrEmpty(tb.Text) || string.IsNullOrWhiteSpace(tb.Text) || (tb.Text == DBNull.Value.ToString(CultureInfo.InvariantCulture)))
+            {
+                tb.Text = "1";
+            }
+            else if (Convert.ToInt32(tb.Text) > 99)
+            {
+                tb.Text = "99";
+            }
+
+            Label lblSku = (Label)item.FindControl("lbl_sku");
+            Label lblPrice = (Label)item.FindControl("lbl_price");
+
+            int t_itemStock = Convert.ToInt32(Session[lblSku.Text]);
+            int t_cartQuantity = Convert.ToInt32(tb.Text);
+            int t_currCartQuantity = DBOps.GetItemQuantity(_userCartId, lblSku.Text);
+
+            try
+            {
+                _itemSKU = lblSku.Text;
+
+                /// user adds a specified amount of the item to the cart
+                if (t_currCartQuantity - t_cartQuantity < 0)
+                {
+                    if (t_itemStock >= t_cartQuantity /* || t_sessionQuant >= t_cartQuantity*/)
+                    {
+                        _cart.UpdateItem(lblSku.Text, Decimal.Parse(lblPrice.Text, NumberStyles.Currency), Convert.ToInt32(tb.Text));
+                        cartDatasource.Update();
+
+                        _itemQuant = DBOps.GetProductQuantity(_itemSKU) - Math.Abs(t_currCartQuantity - t_cartQuantity);
+                        ProductsDataSource.Update();
+                    }
+                    else
+                    {
+                        ScriptManager.RegisterStartupScript(this, GetType(), "notif",
+                            string.Format("alert('ITEM NOT ADDED. The specified quantity of {0} is more than the available stock of the item.')",
+                            t_cartQuantity), true);
+                    }
+                }
+                else
+                {
+                    _cart.UpdateItem(lblSku.Text, Decimal.Parse(lblPrice.Text, NumberStyles.Currency), Convert.ToInt32(tb.Text));
+                    cartDatasource.Update();
+                    _itemQuant = DBOps.GetProductQuantity(_itemSKU) + Math.Abs(t_currCartQuantity - t_cartQuantity);
+                    ProductsDataSource.Update();
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            lvw_items.DataSource = DBOps.BuildUserCart(_userCartId);
+            lvw_totals.DataSource = DBOps.BuildUserCartTotals(_userCartId);
+            lvw_items.DataBind();
+            lvw_totals.DataBind();
+
+            SiteMaster master = Page.Master as SiteMaster;
+            master.UpdateTotalCounters();
+        }
+
         protected void tbx_qty_TextChanged(object sender, EventArgs e)
         {
             TextBox textBox1 = (TextBox)sender;
@@ -281,6 +423,7 @@ namespace E_CommerceApp
             List<string> files = images.Select(img => path + "/" + Path.GetFileName(img)).ToList();
             return files[0];
         }
+
 
     }
 }
