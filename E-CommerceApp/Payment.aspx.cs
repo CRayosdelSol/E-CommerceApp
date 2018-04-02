@@ -121,10 +121,25 @@ namespace E_CommerceApp
             {
                 HttpCookie myCookie = new HttpCookie("cartID");
                 myCookie.Expires = DateTime.Now.AddYears(-1);
-                Response.Cookies.Add(myCookie);
+                Response.Cookies.Set(myCookie);
             }
 
 
+            CartDataSource.Update();
+
+
+
+
+        }
+
+        protected void CartDataSource_Updating(object sender, SqlDataSourceCommandEventArgs e)
+        {
+            e.Command.Parameters["@Id"].Value = (Convert.ToInt32(Session["prevID"]));
+            e.Command.Parameters["@date"].Value = DateTime.Now;
+        }
+
+        protected void CartDataSource_Updated(object sender, SqlDataSourceStatusEventArgs e)
+        {
             // reset the session variables
             // Session.Abandon will erase everything. 
             // Not everything has to be erased.
@@ -135,7 +150,6 @@ namespace E_CommerceApp
             // empty the cart
             UserCart cart = UserCart.Instance;
             cart.Reset();
-
 
             Response.Redirect("~/Confirm.aspx");
         }

@@ -14,7 +14,7 @@ namespace E_CommerceApp
             if (Session["currUser"] != null)
             {
                 Btn_Login.Text = (string)Session["currUser"];
-                Btn_Login.PostBackUrl = @"~/Cart.aspx";
+                Btn_Login.PostBackUrl = @"~/TransactionHistory.aspx";
 
                 Btn_SignUp.Text = "Sign Out";
                 Btn_SignUp.CssClass = "btn btn-sm btn-outline-danger";

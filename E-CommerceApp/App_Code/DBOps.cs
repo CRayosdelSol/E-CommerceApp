@@ -932,7 +932,7 @@ namespace E_CommerceApp
                 }
             }
 
-            return data ;
+            return data;
         }
 
         /// <summary>
@@ -948,11 +948,11 @@ namespace E_CommerceApp
             string[] originalCartData = GetUserCart(cartID);
 
             string[] t_lastInsertedItem = originalCartData[0].
-                Split(new string[] { "," },StringSplitOptions.RemoveEmptyEntries);
+                Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             string[] t_lastInsertedQuant = originalCartData[2].
                 Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
-            for(int i = 0; i < t_lastInsertedItem.Length; i++)
+            for (int i = 0; i < t_lastInsertedItem.Length; i++)
             {
                 if (t_lastInsertedItem[i] == itemSKU)
                 {
@@ -963,6 +963,110 @@ namespace E_CommerceApp
 
 
             return data;
+        }
+
+        /// <summary>
+        /// Obtains every transaction that is associated with the specified user
+        /// </summary>
+        /// <param name="UserEmail">The E-mail address of the user who's transaction histories are to be obtained</param>
+        /// <returns></returns>
+        private static List<string> GetTransactionHistories(string UserEmail)
+        {
+            List<string> Data = new List<string>();
+
+            string queryString = @"SELECT date,reference_key,totalCount,totalPrice FROM purchases " +
+                "WHERE customer=@cutsomer";
+            string h_items = string.Empty;
+
+            using (SqlConnection conn = new SqlConnection(cartConn))
+            {
+                using (SqlCommand comm = new SqlCommand(queryString, conn))
+                {
+                    comm.Parameters.Add("@cutsomer", SqlDbType.NVarChar).Value = UserEmail;
+                    conn.Open();
+
+                    using (SqlDataReader reader = comm.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            for (int i = 0; i < 4; i++)
+                            {
+                                h_items += reader[i] + ",";
+                            }
+
+                            Data.Add(h_items);
+
+                            h_items = string.Empty;
+                        }
+                    }
+                }
+            }
+
+            return Data;
+        }
+
+        /// <summary>
+        /// Builds a table containing all the transactions associated with the specified user
+        /// </summary>
+        /// <param name="UserEmail">The E-mail address of the user who's transaction history is to be obtained</param>
+        /// <returns></returns>
+        public static DataTable UserTransactionsTable(string UserEmail)
+        {
+            List<string> DataItems = GetTransactionHistories(UserEmail);
+
+            DataTable table = new DataTable("user");
+            DataColumn column;
+
+            int ItemCounter = 0;
+
+            column = new DataColumn("TransactionNumber")
+            {
+                AllowDBNull = false,
+                DataType = typeof(Int32)
+            };
+
+            table.Columns.Add(column);
+
+
+            column = new DataColumn("Date")
+            {
+                AllowDBNull = false,
+                DataType = typeof(DateTime)
+            };
+
+            table.Columns.Add(column);
+
+            column = new DataColumn("RefNum")
+            {
+                AllowDBNull = false,
+                DataType = typeof(String)
+            };
+
+            table.Columns.Add(column); column = new DataColumn("ItemCount")
+            {
+                AllowDBNull = false,
+                DataType = typeof(Int32)
+            };
+
+            table.Columns.Add(column); column = new DataColumn("TotalPrice")
+            {
+                AllowDBNull = false,
+                DataType = typeof(Decimal)
+            };
+
+            table.Columns.Add(column);
+
+
+            foreach (string item in DataItems)
+            {
+                ItemCounter++;
+                string[] ts_DataItems = DataItems.ToArray();
+                ts_DataItems = item.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                table.Rows.Add(ItemCounter, Convert.ToDateTime(ts_DataItems[0]),
+                    ts_DataItems[1], Convert.ToInt32(ts_DataItems[2]), Convert.ToDecimal(ts_DataItems[3]));
+            }
+
+            return table;
         }
     }
 }

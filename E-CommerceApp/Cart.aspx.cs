@@ -46,7 +46,7 @@ namespace E_CommerceApp
                 _userCartId = Convert.ToInt32(Session["prevID"]);
             }
 
-            if (Session["prevID"] == null)
+            if (Session["prevID"] != null)
             {
                 _userCartId = Convert.ToInt32(Session["prevID"]);
             }

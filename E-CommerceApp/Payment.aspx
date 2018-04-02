@@ -91,6 +91,18 @@
 
                     </div>
                     <br />
+                    <asp:SqlDataSource ID="CartDataSource" runat="server" ConnectionString="<%$ ConnectionStrings:CartConnectionString %>" DeleteCommand="DELETE FROM [purchases] WHERE [Id] = @Id" InsertCommand="INSERT INTO [purchases] ([date]) VALUES (@date)" OnUpdated="CartDataSource_Updated" OnUpdating="CartDataSource_Updating" SelectCommand="SELECT [date], [Id] FROM [purchases]" UpdateCommand="UPDATE [purchases] SET [date] = @date WHERE [Id] = @Id">
+                        <DeleteParameters>
+                            <asp:Parameter Name="Id" Type="Int32" />
+                        </DeleteParameters>
+                        <InsertParameters>
+                            <asp:Parameter DbType="Date" Name="date" />
+                        </InsertParameters>
+                        <UpdateParameters>
+                            <asp:Parameter DbType="Date" Name="date" />
+                            <asp:Parameter Name="Id" Type="Int32" />
+                        </UpdateParameters>
+                    </asp:SqlDataSource>
                 </div>
             </ContentTemplate>
         </asp:UpdatePanel>
